@@ -1,6 +1,6 @@
 
 #############################################################################################################
-# VM CONFIGURATION - WINDOWS
+# VM CONFIGURATION - Linux
 #############################################################################################################
 
 # Define image and number of nodes for windows
@@ -15,7 +15,7 @@ vm_cpus = 2
 
 # Vm hostname. It expects a string. It will be appended automatically to the node count later. example: node-01, node-02, etc.
 # Only accepts characters, numbers and dashes. No spaces or special characters or underscores.
-vm_hostname = "zabbix-server"
+vm_hostname = "linux-server"
 
 ssh_pub_key = File.readlines("#{Dir.home}/.ssh/vagrant-ansible.pub").first.strip
 
