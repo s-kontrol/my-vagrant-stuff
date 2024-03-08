@@ -1,0 +1,5 @@
+---
+- name: Provision agent for windows nodes.
+  hosts: windows
+  roles:
+    - zabbix-agent
