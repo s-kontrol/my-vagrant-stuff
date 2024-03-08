@@ -1,0 +1,6 @@
+---
+# tasks file for base
+- name: "Update the apt repository"
+  become: true
+  ansible.builtin.apt:
+    update_cache: true

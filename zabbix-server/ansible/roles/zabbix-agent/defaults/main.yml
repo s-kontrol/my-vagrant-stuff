@@ -1,0 +1,6 @@
+---
+# vars file for zabbix-agent
+backend_ip: '127.0.0.1'
+packages: [
+  zabbix-agent,
+]

@@ -1,0 +1,14 @@
+---
+zabbix:
+  children:
+    zabbix_server_db:
+      hosts:
+        zabbix-server-01:
+
+    zabbix_server_web:
+      hosts:
+        zabbix-server-00:
+
+    zabbix_server_backend:
+      hosts:
+        zabbix-server-00:

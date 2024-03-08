@@ -1,0 +1,18 @@
+---
+# vars file for zabbix-database
+db_user: zabbix
+db_pass: zabbix
+db_name: zabbix
+backend_ip: '127.0.0.1'
+frontend_ip: '127.0.0.1'
+packages: [
+    mysql-server,
+    mysql-client,
+    python3-mysqldb,
+    libmysqlclient-dev
+]
+db_allowed_hosts: [
+    "{{ backend_ip }}",
+    "{{ frontend_ip }}",
+    localhost
+]

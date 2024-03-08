@@ -1,0 +1,43 @@
+---
+- name: Register Custom Facts for the rest of the play.
+  hosts: zabbix
+  tasks:
+    - name: Create Special facts for zabbix group
+      ansible.builtin.set_fact:
+        backend_ip: "{{ hostvars[item].me_ip }}"
+      with_items: "{{ groups['zabbix_server_backend'] | sort | first }}"
+
+    - name: Create Special facts for zabbix group
+      ansible.builtin.set_fact:
+        frontend_ip: "{{ hostvars[item].me_ip }}"
+      with_items: "{{ groups['zabbix_server_web'] | sort | first }}"
+
+    - name: Create Special facts for zabbix group
+      ansible.builtin.set_fact:
+        db_ip: "{{ hostvars[item].me_ip }}"
+      with_items: "{{ groups['zabbix_server_db'] | sort | first }}"
+
+- name: Loading base role for zabbix
+  hosts: zabbix
+  become: true
+  strategy: free
+  roles:
+    - base
+
+- name: Install Database for zabbixserver
+  hosts: zabbix_server_db
+  become: true
+  roles:
+    - zabbix-database
+
+- name: Install Zabbix front end
+  hosts: zabbix_server_web
+  become: true
+  roles:
+    - zabbix-server
+
+- name: Install Zabbix Agents
+  hosts: zabbix
+  become: true
+  roles:
+    - zabbix-agent

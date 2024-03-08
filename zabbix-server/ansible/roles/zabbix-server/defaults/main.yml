@@ -1,0 +1,13 @@
+---
+# vars file for zabbix-server
+backend_ip: '127.0.0.1'
+db_ip: '127.0.0.1'
+db_user: zabbix
+db_pass: zabbix
+db_name: zabbix
+packages: [
+    zabbix-server-mysql,
+    zabbix-frontend-php,
+    zabbix-apache-conf,
+    zabbix-sql-scripts
+]

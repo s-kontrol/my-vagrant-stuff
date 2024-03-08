@@ -1,0 +1,81 @@
+---
+- name: Install Database Packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages }}"
+
+- name: Start and enable mysql
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Create database
+  community.mysql.mysql_db:
+    name: "{{ db_name }}"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_bin
+
+- name: Create mysql user (zabbix)
+  community.mysql.mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    priv: 'zabbix.*:ALL'
+    host: "{{ item }}"
+    state: present
+  loop: "{{ db_allowed_hosts }}"
+
+- name: Enable remote login to mysql
+  ansible.builtin.lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regex: '^bind-address = 0.0.0.0.'
+    line: 'bind-address = 0.0.0.0'
+    backup: true
+
+- name: Start and enable mysql
+  ansible.builtin.service:
+    name: mysql
+    state: restarted
+
+- name: Check if this node has been bootstrap already.
+  ansible.builtin.stat:
+    path: ~/.bootstrap_ok
+  register: bootstrap
+
+- name: Install zabbix database
+  when: not bootstrap.stat.exists
+  block:
+    - name: Enable binary logging for zabbix database
+      community.mysql.mysql_query:
+        query: "set global log_bin_trust_function_creators = 1"
+
+
+  when: not bootstrap.stat.exists
+
+- name: Copy server.sql.gz file
+  ansible.builtin.copy:
+    src: "shared/server.sql.gz"
+    dest: "~/server.sql.gz"
+    mode: '755'
+  when: not bootstrap.stat.exists
+
+- name: Run the script # noqa risky-shell-pipe
+  ansible.builtin.shell: |
+    zcat ~/server.sql.gz | mysql --default-character-set=utf8mb4 -u{{ db_user }} -p{{ db_pass }} zabbix
+  register: my_output
+  changed_when: my_output.rc != 0
+  when: not bootstrap.stat.exists
+
+- name: Create bootstrap ready
+  ansible.builtin.file:
+    path: ~/.bootstrap_ok
+    state: touch
+    mode: '0644'
+  when: my_output.rc | default (0) == 0
+
+- name: Disable binary logging for zabbixdatabase
+  community.mysql.mysql_query:
+    query: "set global log_bin_trust_function_creators = 0"
+  when: not bootstrap.stat.exists

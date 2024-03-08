@@ -1,0 +1,39 @@
+---
+# tasks file for zabbix-server
+- name: Install Zabbix dpkg
+  ansible.builtin.apt:
+    deb: "https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu20.04_all.deb"
+    update_cache: true
+
+- name: "Update the apt repository"
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Zabbix packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages }}"
+
+- name: Copy the config file
+  ansible.builtin.template:
+    src: shared/templates/zabbix.conf.php.j2
+    dest: /etc/zabbix/web/zabbix.conf.php
+    mode: '0664'
+
+- name: Copy zabbix-server conf
+  ansible.builtin.template:
+    src: shared/templates/zabbix_server.conf.j2
+    dest: /etc/zabbix/zabbix_server.conf
+    mode: '0664'
+
+- name: Restart zabbix service
+  ansible.builtin.service:
+    name: zabbix-server
+    state: restarted
+
+- name: Restart apache2
+  ansible.builtin.service:
+    name: apache2
+    state: restarted

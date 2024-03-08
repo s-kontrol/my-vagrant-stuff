@@ -1,0 +1,58 @@
+
+#############################################################################################################
+# VM CONFIGURATION - WINDOWS
+#############################################################################################################
+
+# Define image and number of nodes for windows
+image = "generic/ubuntu2004"
+
+# Node count
+node_count = 2
+
+# VM specs
+vm_memory = 2048
+vm_cpus = 4
+
+# Vm hostname. It expects a string. It will be appended automatically to the node count later. example: node-01, node-02, etc.
+# Only accepts characters, numbers and dashes. No spaces or special characters or underscores.
+vm_hostname = "zabbix-server"
+
+ssh_pub_key = File.readlines("#{Dir.home}/.ssh/vagrant-ansible.pub").first.strip
+#############################################################################################################
+# NETWORK CONFIGURATION
+#############################################################################################################
+
+# attach to the default network interface. Can be changed to a specific interface. it expects a string with the interface. MUST BE A BRIDGE. 
+# ie "bridge0". MUST BE A BRIDGE.
+#default_network_interface=`ip route | awk '/^default/ {printf "%s", $5; exit 0}'`
+default_network_interface='bridge0'
+
+#############################################################################################################
+# VAGRANT CONFIGURATION STARTS HERE. CHANGE AT YOUR OWN RISK.
+#############################################################################################################
+
+Vagrant.configure("2") do |config|
+  # Use a loop to create multiple VMs with the same configuration
+  (0..node_count-1).each do |i|
+    config.vm.define "#{vm_hostname}-#{i.to_s.rjust(2, "0")}" do |node|
+      node.vm.box = image
+      node.vm.hostname = "#{vm_hostname}-#{i.to_s.rjust(2, "0")}"
+      node.vm.network :public_network,
+      :dev => "#{default_network_interface}",
+      :mode => "bridge",
+      :type => "bridge"
+      # Adjust the libvirt provider configuration for memory and CPUs
+      node.vm.provider "libvirt" do |libvirt|
+        libvirt.memory = vm_memory
+        libvirt.cpus = vm_cpus
+        libvirt.storage :file, :size => '30G', :device => 'sdb'
+      end
+      node.vm.provision 'shell', inline: 'mkdir -p /root/.ssh'
+      node.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /root/.ssh/authorized_keys"
+      node.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys", privileged: false
+      node.vm.provision 'shell', inline: "sysctl -w net.ipv6.conf.all.disable_ipv6=0; sysctl -w net.ipv6.conf.default.disable_ipv6=0; sysctl -p"
+      #node.vm.provision "shell", path: "provision_scripts/winrmsetup.ps1"
+      #node.vm.provision "shell", path: "provision_scripts/initial-setup.ps1"
+    end
+  end
+end
