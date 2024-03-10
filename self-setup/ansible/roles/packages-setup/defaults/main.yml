@@ -18,3 +18,13 @@ packages_vagrant: [
     winrm-fs,
     vagrant-libvirt
 ]
+
+aliases: [
+    alias gt='git status',
+    alias ga='git add',
+    alias gc='git commit',
+    alias gcm='git commit -m',
+    alias gco='git checkout',
+    alias vsh='virsh',
+    alias vagrant='time vagrant'
+]

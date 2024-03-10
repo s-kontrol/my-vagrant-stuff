@@ -34,3 +34,9 @@
     name: "{{ ansible_user_id }}"
     groups: libvirt
     append: true
+
+- name: Make sure custom aliases are set
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: "{{ item }}"
+  loop: "{{ aliases }}"
