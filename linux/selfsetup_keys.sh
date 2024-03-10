@@ -6,7 +6,7 @@ display_warning() {
 
 bridge_interface=$(ip link show type bridge | awk -F: '/^[0-9]/ {print $2}' | awk '{print $1}' | head -n 1)
 if [ -z "$bridge_interface" ]; then
-  display_warning "No bridge interface found"
+  display_warning "No bridge interface found. This is required for Vagrant to work. Please create one."
   exit 1
 else
   echo "Bridge interface found: $bridge_interface"
