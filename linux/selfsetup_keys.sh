@@ -8,6 +8,8 @@ bridge_interface=$(ip link show type bridge | awk -F: '/^[0-9]/ {print $2}' | aw
 if [ -z "$bridge_interface" ]; then
   display_warning "No bridge interface found"
   exit 1
+else
+  echo "Bridge interface found: $bridge_interface"
 fi
 
 if [ ! -d ~/.ssh ]; then
