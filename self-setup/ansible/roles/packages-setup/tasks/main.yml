@@ -31,6 +31,6 @@
 - name: Make sure user is in libvirt group
   become: true
   ansible.builtin.user:
-    name: vagrant
+    name: "{{ ansible_user_id }}"
     groups: libvirt
     append: true
