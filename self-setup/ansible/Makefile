@@ -1,5 +1,5 @@
 # Makefile for creating a Python virtual environment and installing requirements
-
+# /etc/sudoers --ask-become-pass
 VENV_NAME = venv
 PYTHON = python3
 REQUIREMENTS = requirements.txt
