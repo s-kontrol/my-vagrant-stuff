@@ -1,0 +1,10 @@
+---
+- name: Ping it
+  hosts: self-server-00
+  pre_tasks:
+    - name: "Update the dnf repository"
+      become: true
+      ansible.builtin.dnf:
+        update_cache: true
+  roles:
+    - packages-setup

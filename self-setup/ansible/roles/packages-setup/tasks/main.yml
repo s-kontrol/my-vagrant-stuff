@@ -1,0 +1,36 @@
+---
+- name: Install packages
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages }}"
+
+- name: Check if Vagrant Plugins exist
+  ansible.builtin.shell:
+    cmd: set -o pipefail && vagrant plugin list | wc -l
+    executable: /bin/bash
+  register: installed_plugins
+  changed_when: (installed_plugins.stdout | int) <= (packages_vagrant | count | int)
+  notify:
+    - Install Vagrant Plugins
+
+- name: Make sure libvirt var is defined on profile
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: export LIBVIRT_DEFAULT_URI=qemu:///system
+    insertafter: export PATH
+
+- name: Make sure libvirt is enabled and started
+  become: true
+  ansible.builtin.service:
+    name: libvirtd
+    enabled: true
+    state: started
+
+- name: Make sure user is in libvirt group
+  become: true
+  ansible.builtin.user:
+    name: vagrant
+    groups: libvirt
+    append: true

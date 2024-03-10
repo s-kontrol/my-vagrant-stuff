@@ -1,0 +1,8 @@
+---
+- name: Install Vagrant Plugins
+  ansible.builtin.command:
+    cmd: vagrant plugin install {{ item }}
+  loop: "{{ packages_vagrant }}"
+  when: (installed_plugins.stdout | int) <= 1
+  register: output
+  changed_when: output.rc == 0

@@ -1,0 +1,3 @@
+---
+ansible_user: vagrant
+me_ip: "{{ ansible_all_ipv4_addresses | sort | first }}"

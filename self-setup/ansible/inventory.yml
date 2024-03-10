@@ -1,0 +1,4 @@
+---
+selfsetup:
+  hosts:
+    self-server-00:
