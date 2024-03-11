@@ -11,7 +11,7 @@
     cmd: set -o pipefail && vagrant plugin list | wc -l
     executable: /bin/bash
   register: installed_plugins
-  changed_when: (installed_plugins.stdout | int) <= (packages_vagrant | count | int)
+  changed_when: (installed_plugins.stdout | int) < (packages_vagrant | count | int)
   notify:
     - Install Vagrant Plugins
 
